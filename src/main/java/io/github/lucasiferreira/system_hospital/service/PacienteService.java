@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,10 +26,15 @@ public class PacienteService {
         Optional<Paciente> ultimoPacienteDoTipo = repository.findTopByEspecialidadeOrderByGeradaEmDesc(paciente.getEspecialidade());
         String ultimaSenhaAtendimento = ultimoPacienteDoTipo.map(Paciente::getSenha).orElse(null);
 
-        String novaSenhaAtendimento = SenhaAtendimentoUtils.gerarProximaSenha(ultimaSenhaAtendimento,paciente.getEspecialidade());
+        String novaSenhaAtendimento = SenhaAtendimentoUtils.gerarProximaSenha(ultimaSenhaAtendimento, paciente.getEspecialidade());
 
         paciente.setSenha(novaSenhaAtendimento);
         paciente.setGeradaEm(LocalDateTime.now());
         return repository.save(paciente);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Paciente> findById(UUID id) {
+        return repository.findById(id);
     }
 }

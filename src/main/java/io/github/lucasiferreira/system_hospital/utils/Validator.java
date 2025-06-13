@@ -15,7 +15,7 @@ public class Validator {
 
     public void validator(Paciente paciente) {
         if (existePacienteCadastrado(paciente)) {
-            throw new RegistroDuplicadoException("Paciente já cadastrado!");
+            throw new RegistroDuplicadoException("CPF duplicado");
         }
         paciente.setSenha(paciente.getSenha() + 1);
     }

@@ -19,6 +19,7 @@ public class Paciente {
 
     @Column(name = "senha_atendimento_exibida")
     private String senha;
+
     private String nome;
     private String cpf;
     private String telefone;
