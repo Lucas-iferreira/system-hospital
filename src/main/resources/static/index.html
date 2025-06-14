@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Chamado de Paciente</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          padding: 20px;
+        }
+
+        button {
+          padding: 10px 20px;
+          font-size: 16px;
+        }
+
+        #dados {
+          margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Chamado de Paciente</h1>
+
+<button onclick="buscarPaciente()">Chamar Próximo Paciente</button>
+
+<div id="dados"></div>
+
+<script>
+    async function buscarPaciente() {
+      try {
+        const response = await fetch("http://localhost:8080/pacientes/chamar"); // Substitua pelo seu endpoint real
+        if (!response.ok) throw new Error("Erro ao buscar paciente");
+
+        const paciente = await response.json();
+
+        document.getElementById("dados").innerHTML = `
+          <h3>Paciente Chamado</h3>
+          <p><strong>Senha:</strong> ${paciente.senha}</p>
+          <p><strong>Nome:</strong> ${paciente.nome}</p>
+          <p><strong>Especialista:</strong> ${paciente.especialidade}</p>
+        `;
+      } catch (error) {
+        document.getElementById("dados").innerHTML = `<p style="color:red;">Erro: ${error.message}</p>`;
+      }
+    }
+</script>
+
+</body>
+</html>

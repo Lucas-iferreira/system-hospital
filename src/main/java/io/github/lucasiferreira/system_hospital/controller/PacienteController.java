@@ -53,7 +53,23 @@ public class PacienteController implements GenericController {
         } else {
             return ResponseEntity.notFound().build();
         }
-
-
     }
+
+    @GetMapping("/chamar")
+    public ResponseEntity<PacienteDTO> chamarProximoPaciente() {
+        Paciente proximo = service.chamarProximo();
+
+        if (proximo == null) {
+            return ResponseEntity.noContent().build(); // 204 se a fila estiver vazia
+        }
+
+        PacienteDTO dto = new PacienteDTO(
+                proximo.getSenha(),
+                proximo.getNome(),
+                proximo.getEspecialidade()
+        );
+
+        return ResponseEntity.ok(dto);
+    }
+
 }
