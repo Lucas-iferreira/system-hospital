@@ -20,12 +20,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PacienteController implements GenericController {
     private final PacienteService service;
-    private final PacienteMapper mapper;
+    private final PacienteMapper mappers;
 
     @PostMapping
     public ResponseEntity<Object> salvar(@RequestBody @Valid CadastrarPacienteDTO dto) {
         try {
-            Paciente paciente = mapper.toEntity(dto);
+            Paciente paciente = mappers.toEntity(dto);
             service.save(paciente);
             URI location = gerarHeaderLocation(paciente.getId());
             return ResponseEntity.created(location).build();
@@ -41,7 +41,7 @@ public class PacienteController implements GenericController {
         var pacienteId = UUID.fromString(id);
 
         return service.findById(pacienteId).map(paciente->{
-            PacienteDTO dto = mapper.toDTO(paciente); //--> utilizando o mapper
+            PacienteDTO dto = mappers.toDTO(paciente); //--> utilizando o mapper
             return ResponseEntity.ok(dto);            //para deixar o codigo mais limpo
         }).orElseGet(()-> ResponseEntity.notFound().build());
 
@@ -66,7 +66,7 @@ public class PacienteController implements GenericController {
         if (proximo == null) {
             return ResponseEntity.noContent().build(); // 204 se a fila estiver vazia
         }
-        PacienteDTO dto = mapper.toDTO(proximo);
+        PacienteDTO dto = mappers.toDTO(proximo);
         return ResponseEntity.ok(dto);
     }
 
