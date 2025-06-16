@@ -7,12 +7,4 @@ public record PacienteDTO(
         String senha,
         String nome,
         Especialidade especialidade
-) {
-    public Paciente mapearParaAutor() {
-        Paciente paciente = new Paciente();
-        paciente.setSenha(this.senha);
-        paciente.setNome(this.nome);
-        paciente.setEspecialidade(this.especialidade);
-        return paciente;
-    }
-}
+) {}

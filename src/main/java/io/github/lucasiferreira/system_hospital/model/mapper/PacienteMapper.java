@@ -4,11 +4,12 @@ import io.github.lucasiferreira.system_hospital.model.Paciente;
 import io.github.lucasiferreira.system_hospital.model.dto.CadastrarPacienteDTO;
 import io.github.lucasiferreira.system_hospital.model.dto.PacienteDTO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface PacienteMapper {
 
-    PacienteDTO toDTO(Paciente entity);
-    Paciente toEntity(PacienteDTO dto);
+    @Mapping(target = "especialidade", source = "especialidade")
     Paciente toEntity(CadastrarPacienteDTO dto);
+    PacienteDTO toDTO(Paciente entity);
 }

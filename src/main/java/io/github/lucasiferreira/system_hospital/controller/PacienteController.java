@@ -2,7 +2,6 @@ package io.github.lucasiferreira.system_hospital.controller;
 
 import io.github.lucasiferreira.system_hospital.exceptions.ErroResposta;
 import io.github.lucasiferreira.system_hospital.exceptions.RegistroDuplicadoException;
-import io.github.lucasiferreira.system_hospital.exceptions.ResourceExceptionHandler;
 import io.github.lucasiferreira.system_hospital.model.Paciente;
 import io.github.lucasiferreira.system_hospital.model.dto.CadastrarPacienteDTO;
 import io.github.lucasiferreira.system_hospital.model.dto.PacienteDTO;
@@ -14,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
