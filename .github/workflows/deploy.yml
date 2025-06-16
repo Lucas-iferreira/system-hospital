@@ -22,21 +22,35 @@ jobs:
       - name: Build com Maven
         run: mvn clean package -DskipTests
 
+      # --- PASSO DE DEBUG 1: Verificar se o diretório target existe e o que há dentro dele ---
       - name: Listar arquivos na pasta target
         run: |
           ls -la target/ || echo "Diretório 'target/' não encontrado ou vazio."
-        # Este comando irá listar o conteúdo de 'target/' e, se não encontrar,
-        # imprimirá uma mensagem. Isso é crucial para ver se o JAR foi gerado.
+          # Este comando irá listar o conteúdo de 'target/' e, se não encontrar,
+          # imprimirá uma mensagem. Isso é crucial para ver se o JAR foi gerado.
 
+      # --- PASSO: Encontrar o nome do arquivo JAR (com sintaxe de output atualizada) ---
       - name: Encontrar o nome do arquivo JAR
+        id: find_jar # ID desta etapa para referência
         run: |
           JAR_FILE=$(find target -name "*.jar" -print -quit)
           if [ -z "$JAR_FILE" ]; then
             echo "Erro: Nenhum arquivo JAR encontrado em 'target/'."
             exit 1
           fi
-          echo "::set-output name=jar_path::$JAR_FILE"
+          # Nova sintaxe para definir output
+          echo "jar_path=$JAR_FILE" >> $GITHUB_OUTPUT
+          echo "Caminho do JAR encontrado: $JAR_FILE" # Para debug direto no log da etapa
         shell: bash
+
+      # --- PASSO DE DEBUG 2: Verificar o valor da variável jar_path antes do scp ---
+      - name: Debug - Verificar caminho do JAR antes de SCP
+        run: |
+          echo "Caminho do JAR que será usado no SCP: ${{ steps.find_jar.outputs.jar_path }}"
+          if [ -z "${{ steps.find_jar.outputs.jar_path }}" ]; then
+            echo "ERRO CRÍTICO: A variável 'jar_path' está vazia. O JAR não foi encontrado ou a etapa 'find_jar' falhou miseravelmente."
+            exit 1 # Falha o workflow aqui se o caminho do JAR não for encontrado
+          fi
 
       - name: Salvar chave SSH
         run: |
@@ -44,16 +58,11 @@ jobs:
           echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-
-
       - name: Copiar JAR para EC2
         run: |
           # Usamos a saída do passo anterior (find_jar) para obter o caminho exato do JAR
           # O 'StrictHostKeyChecking=no' não é recomendado para produção, mas ok para testes rápidos
           scp -o StrictHostKeyChecking=no ${{ steps.find_jar.outputs.jar_path }} ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app.jar
-      #      - name: Copiar JAR para EC2
-      #        run: |
-      #          scp -o StrictHostKeyChecking=no target/*.jar ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app.jar
 
       - name: Reiniciar app na EC2
         run: |
