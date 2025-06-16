@@ -9,7 +9,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface PacienteMapper {
 
-    @Mapping(target = "especialidade", source = "especialidade")
     Paciente toEntity(CadastrarPacienteDTO dto);
     PacienteDTO toDTO(Paciente entity);
 }

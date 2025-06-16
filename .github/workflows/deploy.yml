@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Clonar o repositório
@@ -18,9 +18,25 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          
+
       - name: Build com Maven
         run: mvn clean package -DskipTests
+
+      - name: Listar arquivos na pasta target
+        run: |
+          ls -la target/ || echo "Diretório 'target/' não encontrado ou vazio."
+        # Este comando irá listar o conteúdo de 'target/' e, se não encontrar,
+        # imprimirá uma mensagem. Isso é crucial para ver se o JAR foi gerado.
+
+      - name: Encontrar o nome do arquivo JAR
+        run: |
+          JAR_FILE=$(find target -name "*.jar" -print -quit)
+          if [ -z "$JAR_FILE" ]; then
+            echo "Erro: Nenhum arquivo JAR encontrado em 'target/'."
+            exit 1
+          fi
+          echo "::set-output name=jar_path::$JAR_FILE"
+        shell: bash
 
       - name: Salvar chave SSH
         run: |
@@ -28,9 +44,16 @@ jobs:
           echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
+
+
       - name: Copiar JAR para EC2
         run: |
-          scp -o StrictHostKeyChecking=no target/*.jar ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app.jar
+          # Usamos a saída do passo anterior (find_jar) para obter o caminho exato do JAR
+          # O 'StrictHostKeyChecking=no' não é recomendado para produção, mas ok para testes rápidos
+          scp -o StrictHostKeyChecking=no ${{ steps.find_jar.outputs.jar_path }} ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app.jar
+      #      - name: Copiar JAR para EC2
+      #        run: |
+      #          scp -o StrictHostKeyChecking=no target/*.jar ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app.jar
 
       - name: Reiniciar app na EC2
         run: |
