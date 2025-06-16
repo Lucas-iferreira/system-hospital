@@ -17,14 +17,4 @@ public record CadastrarPacienteDTO(
         Especialidade especialidade,
         @NotNull
         Doc doc
-) {
-    public Paciente mapearParaPaciente(){
-        Paciente paciente = new Paciente();
-        paciente.setNome(this.nome);
-        paciente.setCpf(this.cpf);
-        paciente.setTelefone(this.telefone);
-        paciente.setEspecialidade(this.especialidade);
-        paciente.setDoc(this.doc);
-        return paciente;
-    }
-}
+) {}
