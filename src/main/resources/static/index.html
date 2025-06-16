@@ -30,7 +30,7 @@
 <script>
     async function buscarPaciente() {
       try {
-        const response = await fetch("http://localhost:8080/pacientes/chamar"); // Substitua pelo seu endpoint real
+        const response = await fetch("http://3.142.164.177:8080/pacientes/chamar"); // Substitua pelo seu endpoint real
         if (!response.ok) throw new Error("Erro ao buscar paciente");
 
         const paciente = await response.json();

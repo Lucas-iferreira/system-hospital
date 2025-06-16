@@ -1,0 +1,39 @@
+name: Deploy EC2
+
+on:
+  push:
+    branches:
+      - main  # ou "master", depende do seu repositório
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar o repositório
+        uses: actions/checkout@v3
+
+      - name: Instalar Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+
+      - name: Build com Maven
+        run: mvn clean package -DskipTests
+
+      - name: Salvar chave SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Copiar JAR para EC2
+        run: |
+          scp -o StrictHostKeyChecking=no target/*.jar ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app.jar
+
+      - name: Reiniciar app na EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+            pkill -f 'java -jar' || true
+            nohup java -jar app.jar > app.log 2>&1 &
+          "
